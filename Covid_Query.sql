@@ -109,23 +109,4 @@ SELECT *, (Total_New_Vaccinations/Population)*100 AS Vac_Percentage
 FROM #PercentPopulationVaccinated
 ----------------------------------------------------------------------------------------------------------------
 
---Creating View to store data for later visualization
-IF OBJECT_ID('dbo.PercentPopulationVaccinated', 'V') IS NOT NULL
-    DROP VIEW dbo.PercentPopulationVaccinated
-GO -- add this keyword to separate the IF statement from the CREATE VIEW statement
-
-CREATE VIEW dbo.PercentPopulationVaccinated AS
-    SELECT death.continent, death.[location], death.[date], death.population, vaccination.new_vaccinations
-    ,SUM(vaccination.new_vaccinations) OVER (Partition by death.location Order by death.location, death.date) AS Total_New_Vaccinations 
-    FROM Covid_Project_Database..CovidDeaths2 death
-    JOIN Covid_Project_Database..CovidVaccinations2 vaccination
-        ON death.[location] = vaccination.[location]
-        AND death.[date] = vaccination.[date]
-    WHERE death.continent <> 'NULL'
-
-GO
-    
-SELECT *
-FROM dbo.PercentPopulationVaccinated
-WHERE Total_New_Vaccinations IS NOT NULL;
 
