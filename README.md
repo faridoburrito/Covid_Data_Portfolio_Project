@@ -1,5 +1,3 @@
-The data used in this project has been taken from https://ourworldindata.org/covid-deaths
-The purpose of the project is to showcase my skills in SQL, Tableau
 
 # Covid-19 Data Analysis
 
