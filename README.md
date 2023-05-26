@@ -31,6 +31,11 @@ To see the Tableau visualizations, visit (https://public.tableau.com/views/Covid
 
 If you would like to replicate this analysis on your own dataset, refer to the sample SQL queries provided in the `queries.sql` file. Simply run these queries on your dataset, ensuring that the table names and columns align with your data schema.
 
+## Acknowledgments
+
+I would like to express my gratitude to _Alex Freberg_ for his valuable assistance throughout this project. Additionally, I would like to thank _Our World in Data_ for providing the Covid-19 dataset, which served as the backbone of this analysis.
+
+
 ## Contact Information
 
 If you have any questions or would like to connect, please feel free to reach out to me at _farid.fatalizade@gmail.com_. You can also find more of my work on my LinkedIn profile at https://www.linkedin.com/in/farid-fatalizade/.
