@@ -20,12 +20,43 @@ WHERE continent <> 'NULL'
 ORDER BY 1,2
 ----------------------------------------------------------------------------------------------------------------
 
---Looking at total cases vs population
---Shows what percentage of each country got Covid
-SELECT [location], [date], total_cases, population,  ROUND(total_cases/NULLIF(population,0)*100,4) AS PercentPopulationInfected
+
+-- #1 for Tableau
+--Showing global numbers for new cases, new deaths
+SELECT  SUM(new_cases) AS Total_Cases, SUM(new_deaths) AS Total_Deaths, CAST(SUM(new_deaths)AS float)/NULLIF(CAST(SUM(new_cases)AS float),0)*100 AS DeathPercentage
 FROM Covid_Project_Database..CovidDeaths2
 WHERE continent <> 'NULL'
-ORDER BY 1,2 
+--GROUP BY date
+ORDER BY 1,2
+----------------------------------------------------------------------------------------------------------------
+
+--#2 for Tableau
+--Showing continents with the highest death count per population
+SELECT [continent], MAX(CAST(total_deaths AS int)) as TotalDeathCount
+FROM Covid_Project_Database..CovidDeaths2
+WHERE continent <> 'NULL'
+GROUP BY [continent]
+ORDER BY TotalDeathCount DESC
+----------------------------------------------------------------------------------------------------------------
+
+-- #3 for Tableau
+--Looking at total cases vs population
+--Shows what percentage of each country got Covid
+SELECT [location], population, MAX(total_cases) AS HighestInfectionCount, ROUND(MAX(total_cases/NULLIF(population,0))*100,4) AS PercentPopulationInfected
+FROM Covid_Project_Database..CovidDeaths2
+WHERE continent <> 'NULL'
+GROUP BY [location], population
+ORDER BY PercentPopulationInfected DESC 
+----------------------------------------------------------------------------------------------------------------
+
+-- #4 for Tableau
+--Looking at total cases vs population vs date
+--Shows what percentage of each country got Covid and in which date
+SELECT [location], population, date, MAX(total_cases) AS HighestInfectionCount, ROUND(MAX(total_cases/NULLIF(population,0))*100,4) AS PercentPopulationInfected
+FROM Covid_Project_Database..CovidDeaths2
+WHERE continent <> 'NULL'
+GROUP BY [location], population,[date]
+ORDER BY PercentPopulationInfected DESC 
 ----------------------------------------------------------------------------------------------------------------
 
 --Showing countries with the highest death count per population
@@ -36,21 +67,6 @@ GROUP BY [location]
 ORDER BY TotalDeathCount DESC
 ----------------------------------------------------------------------------------------------------------------
 
---Showing continents with the highest death count per population
-SELECT [continent], MAX(CAST(total_deaths AS int)) as TotalDeathCount
-FROM Covid_Project_Database..CovidDeaths2
-WHERE continent <> 'NULL'
-GROUP BY [continent]
-ORDER BY TotalDeathCount DESC
-----------------------------------------------------------------------------------------------------------------
-
---Showing global numbers for new cases, new deaths
-SELECT  SUM(new_cases) AS Total_Cases, SUM(new_deaths) AS Total_Deaths, CAST(SUM(new_deaths)AS float)/NULLIF(CAST(SUM(new_cases)AS float),0)*100 AS DeathPercentage
-FROM Covid_Project_Database..CovidDeaths2
-WHERE continent <> 'NULL'
---GROUP BY date
-ORDER BY 1,2
-----------------------------------------------------------------------------------------------------------------
 --Looking at  Population vs Max Total Vaccinations for each country
 --Use CTE (Common Table Expression)
 WITH PopvsVac (continent, location, date, population, new_vaccinations, Total_New_Vaccinations)
@@ -69,7 +85,7 @@ FROM PopvsVac
 GROUP BY [location], population
 Order by 1,2
 ----------------------------------------------------------------------------------------------------------------
---Temporary table
+--Temporary table to calculate the total of new vaccinations for each country by using Partition By function and ordering them by their location and date
 DROP TABLE IF EXISTS #PercentPopulationVaccinated
 CREATE TABLE #PercentPopulationVaccinated
 (
@@ -94,7 +110,6 @@ FROM #PercentPopulationVaccinated
 ----------------------------------------------------------------------------------------------------------------
 
 --Creating View to store data for later visualization
-
 IF OBJECT_ID('dbo.PercentPopulationVaccinated', 'V') IS NOT NULL
     DROP VIEW dbo.PercentPopulationVaccinated
 GO -- add this keyword to separate the IF statement from the CREATE VIEW statement
@@ -108,8 +123,9 @@ CREATE VIEW dbo.PercentPopulationVaccinated AS
         AND death.[date] = vaccination.[date]
     WHERE death.continent <> 'NULL'
 
-GO -- add this keyword to separate the CREATE VIEW  statement from the SELECT statement
+GO
     
 SELECT *
 FROM dbo.PercentPopulationVaccinated
 WHERE Total_New_Vaccinations IS NOT NULL;
+
